@@ -1,0 +1,82 @@
+body {
+    font-family: BentonSans, sans-serif;
+    background-color: rgb(32,33,36);
+    color: #ffffff;
+    min-width: 376px;
+    margin: 0px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+body::-webkit-scrollbar {
+    display: none;
+}
+
+#mainHeader {
+    text-align: center;
+}
+
+#InstructionsDiv {
+    width: 80%;
+    padding: 10px;
+    border-radius: 1em;
+    margin: 0 auto;
+    margin-bottom: 100px;
+    background-color: #1f2839;
+    max-width: 597px;
+}
+
+#GenerateSyncCodeGif {
+    display: block;
+    margin: 0 auto;
+    height: 600px;
+    align-items: center;
+}
+
+.ConsoleCommandToBeCopied {
+    display: block;
+    width: 500px;
+}
+
+#ChromeExportIndexedDBExtensionGif {
+    display: block;
+    margin: 0 auto;
+    width: 550px;
+    align-items: center;
+}
+
+#JSONFile {
+    background-color: #22b9e3;
+    border: 2px solid #ffffff;
+    border-radius: 0.4em;
+    text-align: center;
+    width: 230px;
+}
+
+#UploadJSONContainer {
+    display: block;
+}
+
+#convertFeedbackSpan {
+    color: rgb(255, 65, 65);
+}
+
+#AnkiAppImportImage {
+    display: block;
+    margin: 10px auto;
+    width: 550px;
+    align-items: center;
+}
+
+#AnkiAppFinalImportButtonImage {
+    display: block;
+    margin: 10px auto;
+    width: 550px;
+    align-items: center;
+}
+
+#AnkiSyncAddAccountGif {
+    display: block;
+    margin: 10px auto;
+    width: 550px;
+    align-items: center;
+}

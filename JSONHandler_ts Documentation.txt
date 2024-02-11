@@ -1,0 +1,233 @@
+The main sorting part of FlashCards World To Anki Converter is coded in TypeScript. 
+The typescript file is compiled into JavaScript, and all js-compiled typescript functions
+    are called from JavaScript.js
+
+
+When JSONHandler.ConvertJsonToAnkiText() is called, it is passed a json: JSON parametre,
+The json param is extracted straight from the IndexedDB of flashcards.world website
+The values we care about in the json file are:
+
+**
+cards[i].term
+cards[i].definition
+cards[i].deckId
+
+sets[i].category
+sets[i].deckName
+sets[i].deckId
+**
+
+We will call the json parametre (the uploaded json file) `json`. We will also call `sets` `decks` and `subdecks` depending on context:
+Deck > Subdeck > Card
+OR
+Deck > Card
+
+Each card in json.cards must have a `term`, a `definition` and a `deckId`.
+
+json.sets is more complicated
+•If you assigned a deck a category then the category field will have a value,
+    otherwise if it doesnt have a category then json.sets[...].category will have a value of either "" or undefined
+•Flashcards.world doesnt always delete cards when you delete sets, 
+    so some cards have a deckId but there is no corresponding deckId to be found in json.sets
+    for these cards, we will create them their own deck called "Unrecognised Cards (Cards without a deck)"
+
+
+So for each card, we will assign it one of 3 different destinations inside Anki:
+•```Deck > Subdeck > Card``` If it's deck has a category
+•```Deck > Card``` If its deck doesnt have a category
+•```Unrecognised Cards (Cards without a deck) > Card``` if it has no matching deckId inside json.sets
+
+
+
+
+Interfaces declared for the objects are:
+``````````
+interface ICard {
+    front: string;
+    back: string;
+    deckId: number;
+}
+interface IDeck {
+    name: string;
+    deckId: number;
+    category: string | null;
+    cards?: ICard[];
+}
+interface ICategory {
+    name: string;
+    decks?: IDeck[];
+}
+interface IRootFlashcardsContainer {
+    categories?: ICategory[];
+    decks?: IDeck[];
+}
+``````````
+
+
+
+
+** - Pseudo code
+// - comment
+
+JSONHandler.ts starts off by assigning all cards and decks to arrays (IDeck[] and ICard[])
+
+``````````
+let allCardsArray: ICard[] = [];
+**Loop through all cards in json.cards, convert then to ICard objects and add them to allCardsArray
+//for example, allCardsArray[0] = {front: "What is 2+2", back: "4", deckId: 1681552399153}
+
+let allDecksArray: IDeck[] = [];
+**Loop through all decks in json.sets, convert then to IDeck objects and add them to allDecksArray
+**IF json.category == "" OR json.category === undefined THEN
+**    json.category = null
+``````````
+
+Then, we add all the cards inside allCardsArray to allDecksArray[...].cards 
+    WHERE allCardsArray[...].deckId == allDecksArray[...].deckId
+If a deckId allCardsArray[...].deckId is assigned to a card but cant be found inside of allDecksArray[...].deckId
+    then we assign the card a deckId of 1
+``````````
+**FOREACH card INSIDE allCardsArray
+    let deckFound: boolean = false;
+**  FOREACH deck INSIDE allDecksArray
+**      IF deck.deckID == card.deckId THEN
+            deck.cards.push(card);
+            deckFound = true;
+      
+    IF !deckFound
+        card.deckID = 1;
+``````````
+
+Add all cards with deckId 1 to a IDeck[] named "Unrecognised Cards (Cards without a deck)"
+``````````
+let deckForCardsWithoutDecks: IDeck = {
+    name: "Unrecognised Cards (Cards without a deck)", 
+    deckId: 1, 
+    category: null
+}
+
+**FOREACH card INSIDE allCardsArray
+**    IF card.deckId == 1
+          deckForCardsWithoutDecks.cards.push(card);
+``````````
+
+
+
+By this point we have a deck array and a deck of un-deck-ed cards:
+•allDecksArray[]
+•deckForCardsWithoutDecks
+
+We need to split allDecksArray[] into decks with categories and decks without categories (deck.category === null).
+To do this we first need to create all the categories by getting the names of all categories by 
+    looping through allDecksArray[...].category and getting all the non-null values
+We add all the names (without duplication) to categoryNamesArray
+``````````
+let categoryNamesArray: string[] = [];
+
+**FOREACH deck IN allDecksArray
+**  IF deck.category === null
+        //do nothing
+**  ELSE
+**      IF !categoryNamesArray.includes(deck.category)
+            categoryNamesArray.push(deck.category)      
+``````````
+
+We then convert all the category names into ICategory objects and add them to  allCategoriesArray
+``````````
+let allCategoriesArray: ICategory[] = [];
+**FOREACH categoryName in categoryNamesArray
+    let category: ICategory = { name: categoryName };
+    allCategoriesArray.push(category);
+``````````
+
+
+
+We then add all decks with categories to their respective category
+``````````
+**FOREACH category IN allCategoriesArray
+**  FOREACH deck IN allDecksArray
+        if (category.name === deck.category) {
+            category.decks?.push(deck)
+        }
+``````````
+
+Then add all decks WITHOUT categories to a an IDeck[] array
+``````````
+let decksWithoutCategories: IDeck[] = [];
+**FOREACH deck IN allDecksArray
+    if (deck.category === null) {
+        decksWithoutCategories.push(deck);
+    }
+``````````
+
+Then, add deckForCardsWithoutDecks to decksWithoutCategories IF deckForCardsWithoutDecks isnt empty
+``````````
+if (deckForCardsWithoutDecks.cards !== undefined) {
+    decksWithoutCategories.push(deckForCardsWithoutDecks);
+}
+``````````
+
+Initialise an IRootFlashcardsContainer and add all the categories and decks to it
+``````````
+let rootContainer: IRootFlashcardsContainer = {};
+FOREACH category IN allCategoriesArray
+    rootContainer.categories?.push(category);
+FOREACH deck IN decksWithoutCategories
+    rootContainer.decks?.push(deck);
+``````````
+
+
+
+We need to then convert all of that into a text file for anki.
+The format for the Anki Text file is simple.
+The file starts off with options, in our case it starts off with:
+``````````
+#separator:tab
+#html:true
+#deck column:1
+#tags column:4
+``````````
+
+This is followed by every single card on a separate line
+``````````
+German Language Flashcards	"Brown"	"Braun"
+German Language Flashcards	"I don&#39;t like&#46;&#46;&#46;"	"Ich mag nicht&#46;&#46;&#46;"
+German Language Flashcards	"Is there a pharmacy nearby&#63;"	"Gibt es eine Apotheke in der N&#228;he&#63;"
+Physics::Astrophysics	"What is a star&#63;"	"A ball of fire"
+Physics::Astrophysics	"What is a planet&#63;"	"A ball thats not on fire"
+``````````
+
+The layout starts off with the category;
+If the card is inside another category:
+```Physics > Astrophysics```
+Then you format it as such
+```Physics::Astrophysics```
+
+If the category isnt inside another category then its just
+```German```
+
+It is then separated by the unicode character \u0009
+
+It is then followed by the front of the card.
+EVERY SINGLE SPECIAL CHARACTER ON THE FRONT AND BACK OF THE CARD MUST BE AN HTML ENTITY
+Instead of 
+```"What is a planet?"``` We write ```"What is a planet&#63;"```
+
+The front and back are inclosed in double brackets and separated again by unicode character \u0009
+
+```
+Category::Subcategory*\u0009*"Front"\u0009"Back"
+```
+```
+Category
+::
+Subcategory
+*\u0009*
+"
+Front
+"
+\u0009
+"
+Back
+"
+```

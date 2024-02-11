@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flashcards World Exporter</title>
+    <link rel="stylesheet" href="css.css" />
+</head>
+
+<body>
+    <h1 id="mainHeader">Flashcards World to Anki Exporter</h1>
+    <main id="InstructionsDiv">
+        <h2>Instructions to getting the Flashcards JSON</h2>
+        Requirements:<br>
+        &#x2022;Be on desktop<br>
+        &#x2022;Anki desktop application<br>
+        &#x2022;Browser with support for IndexDB extraction (Chrome based browsers ONLY)<br><br>
+
+        In order to grab the flashcards from FlashCards world, we need to first import your flashcards library onto
+        desktop. To do this:<br>
+        <h3>Step 1. Import flashcards to the <a href="https://flashcards.world/mysets/">Flashcards.World website</a>
+        </h3>
+        Visit <a href="https://flashcards.world/mysets/">Flashcards.World</a> and select "SYNC WITH MOBILE APP"<br>
+        In the Flashcards app on your phone, <br>
+        &#x2022;Click on the 3 dots in the top right corner.<br>
+        &#x2022;Click 'Sync'<br>
+        &#x2022;Click 'Generate Code'<br>
+        &#x2022;Click 'Generate Sync Code'<br>
+        <img id="GenerateSyncCodeGif" src="lib/GenerateSyncCodeOnPhone.gif"
+            alt="In the Flashcards app on your phone, click on the 3 dots in the top right corner. Click 'sync', then click 'generate code' and then 'Generate Sync Code' ">
+
+        <hr>
+
+        <h3>Step 2. Export IndexedDB</h3>
+
+        <!-- <h4>Step 2. For Chromium based browsers</h4> -->
+        <p>
+            For Chrome, Edge, Opera and other Chromium based browsers, we recommend exporting IndexedDB using
+            <a href="https://chromewebstore.google.com/detail/kngligbmoipnmljnpphhocajldjplgcj">
+                this extension
+            </a>
+        </p>
+        &#x2022;Install the extension<br>
+        &#x2022;Click on the extension<br>
+        &#x2022;Click "Select Database"<br>
+        &#x2022;Click "flashcards_db"<br>
+        &#x2022;Click Export<br>
+        <p></p>
+        <img id="ChromeExportIndexedDBExtensionGif" src="lib/ChromeIndexedDBExporter.gif">
+
+        <!-- <h4>Step 2. For Firefox based browsers</h4>
+
+
+        <p>
+            For Firefox based browsers, no extension exist.<br>
+            Therefore, the process is complicated. <a
+                href="https://dfahlander.medium.com/export-indexeddb-from-a-web-app-using-devtools-62c55a8996a1">Original
+                Instructions</a>
+        </p>
+        &#x2022;On the flashcards.world browser, open the console by:<br>
+        &#x2022;&#x2022;Doing the keyboard combination Ctrl+Shift+K OR right click the page and selecting "Inspect"<br>
+        &#x2022;&#x2022;Click "Console" In the top navigation bar of the opened menu<br>
+        <input class="ConsoleCommandToBeCopied" type="text" value="script1 = document.createElement('script');" readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value="script1.src = 'https://unpkg.com/dexie@3.2.2';" readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value="document.body.appendChild(script1);" readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value="script2 = document.createElement('script');" readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value="script2.src = 'https://unpkg.com/dexie-export-import@1.0.3';" readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value="document.body.appendChild(script2);" readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value="theDBName = 'flashcards_db';" readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value="theDB = new Dexie(theDBName);" readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value="let {verno, tables} = await theDB.open();" readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value="theDB.close();" readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value="theDB = new Dexie(theDBName);" readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value='theDB.version(verno).stores(tables.reduce((p,c) => {p[c.name] = c.schema.primKey.keyPath || ""; return p;}, {}));' readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value="theBlob = await theDB.export();" readonly>
+        <input class="ConsoleCommandToBeCopied" type="text" value='document.body.innerHTML = ` <a href="${URL.createObjectURL(theBlob)}">Right-click to download database export</a>`;' readonly> -->
+
+
+        <hr>
+
+        <h3>Step 3. Upload Database</h3>
+
+        <div id="UploadJSONContainer">
+            <input type="file" name="Upload JSON File" id="JSONFile" accept="application/json" />
+            <button id="ConvertButton">Convert</button>
+        </div>
+        <span id="convertFeedbackSpan"></span>
+
+        <hr>
+
+        <h3>Step 4. Import Flashcards to Anki</h3>
+        Open the Anki desktop app and click "File" in the top left corner then "Import"
+        <img id="AnkiAppImportImage" src="lib/AnkiAppImportImage.PNG">
+        Select the json file you downloaded from file explorer.<br>
+        Click import in the top right corner
+        <img id="AnkiAppFinalImportButtonImage" src="lib/AnkiAppFinalImportButton.PNG">
+
+        <hr>
+
+        <h3>Optional - Sync to mobile phone</h3>
+        <p>If you have don't have an Anki account, <a href="https://ankiweb.net/account/signup">Sign up here</a></p>
+        <p>In Anki Desktop, click "Sync" and then log in</p>
+        <img id="AnkiSyncAddAccountGif" src="lib/AnkiSyncAddAccountGif.gif" alt="">
+    </main>
+
+
+    <script src="jquery.js"></script>
+    <script src="JSONHandler.js"></script>
+    <script src="Javascript.js"></script>
+</body>
+
+</html>
