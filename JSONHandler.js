@@ -90,7 +90,7 @@ function ConvertJsonToAnkiText(json) {
             var deckIdWithNoMathingDeck_1 = card.deckId;
             card.deckId = 1;
             stat_numberOfDecksWithUnfoundDecks++;
-            //(for debuging purposes) if cards deckId (before it was changed to 1) doesnt exists in deckIdsNotFound AND wasnt found in decks, then add it to deckIdsNotFound 
+            //(for debuging purposes) if cards deckId (before it was changed to 1) doesnt exists in deckIdsNotFound AND wasnt found in decks, then add it to deckIdsNotFound
             var found_1 = false;
             deckIdsNotFound.forEach(function (deckId) {
                 if (deckId == deckIdWithNoMathingDeck_1) {
@@ -106,7 +106,11 @@ function ConvertJsonToAnkiText(json) {
     console.log("Number of cards which no deck were found: ".concat(stat_numberOfDecksWithUnfoundDecks));
     console.log(deckIdsNotFound);
     //      Add the cards which have been ignored (they have no deck id) to a new deck called "Unrecognised Cards (Cards without a deck)"
-    var deckForCardsWithoutDecks = { name: "Unrecognised Cards (Cards without a deck)", deckId: 1, category: null };
+    var deckForCardsWithoutDecks = {
+        name: "Unrecognised Cards (Cards without a deck)",
+        deckId: 1,
+        category: null,
+    };
     allCardsArray.forEach(function (card) {
         //if deck id is 1 (for the unorganised cards)
         if (card.deckId == 1) {
@@ -246,19 +250,11 @@ function ConvertToAnkiText(category, front, back) {
     i++;
     return (category + "\u0009" + '"' + front + '"' + "\u0009" + '"' + back + '"\n');
 }
-//Replaces all special characters with HTML entities 
-function replaceWithHTMLEntities(str) {
-    var result = '';
-    for (var i_3 = 0; i_3 < str.length; i_3++) {
-        var charCode = str.charCodeAt(i_3);
-        if ((charCode >= 65 && charCode <= 90) || // A-Z
-            (charCode >= 97 && charCode <= 122) || // a-z
-            charCode == 32) { // space
-            result += str[i_3];
-        }
-        else {
-            result += '&#' + charCode + ';';
-        }
-    }
-    return result;
+//Replaces all \" with "" and all \n with <br>
+function replaceWithHTMLEntities(inputString) {
+    // Replace all occurrences of \" with ""
+    var doubleQuotesReplaced = inputString.replace(/\\"/g, '""');
+    // Replace all occurrences of \n with <br>
+    var newlinesReplaced = doubleQuotesReplaced.replace(/\n/g, '<br>');
+    return newlinesReplaced;
 }

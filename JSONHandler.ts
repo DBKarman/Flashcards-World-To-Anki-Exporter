@@ -98,7 +98,6 @@ function ConvertJsonToAnkiText(json: JSON): string {
     }
     console.log(`Number of decks: ${allDecksArray.length}`);
 
-
     let stat_numberOfCardsAssignedToDecks: number = 0;
     let stat_numberOfDecksWithUnfoundDecks: number = 0;
     let deckIdsNotFound: number[] = [];
@@ -110,7 +109,6 @@ function ConvertJsonToAnkiText(json: JSON): string {
         allDecksArray.forEach((deck) => {
             //if deckID == deckID then add it
             if (deck["deckId"] == card["deckId"]) {
-
                 //Initialise deck.cards if it isnt initialised
                 if (deck.cards === undefined) {
                     deck.cards = [];
@@ -132,26 +130,34 @@ function ConvertJsonToAnkiText(json: JSON): string {
             card.deckId = 1;
 
             stat_numberOfDecksWithUnfoundDecks++;
-            
-            //(for debuging purposes) if cards deckId (before it was changed to 1) doesnt exists in deckIdsNotFound AND wasnt found in decks, then add it to deckIdsNotFound 
+
+            //(for debuging purposes) if cards deckId (before it was changed to 1) doesnt exists in deckIdsNotFound AND wasnt found in decks, then add it to deckIdsNotFound
             let found: boolean = false;
-            deckIdsNotFound.forEach(deckId => {
+            deckIdsNotFound.forEach((deckId) => {
                 if (deckId == deckIdWithNoMathingDeck) {
                     found = true;
                 }
             });
-            if (!found){
+            if (!found) {
                 deckIdsNotFound.push(deckIdWithNoMathingDeck);
             }
         }
     });
-    console.log(`Number of cards assigned to decks: ${stat_numberOfCardsAssignedToDecks}`);
-    console.log(`Number of cards which no deck were found: ${stat_numberOfDecksWithUnfoundDecks}`);
+    console.log(
+        `Number of cards assigned to decks: ${stat_numberOfCardsAssignedToDecks}`
+    );
+    console.log(
+        `Number of cards which no deck were found: ${stat_numberOfDecksWithUnfoundDecks}`
+    );
     console.log(deckIdsNotFound);
 
     //      Add the cards which have been ignored (they have no deck id) to a new deck called "Unrecognised Cards (Cards without a deck)"
-    let deckForCardsWithoutDecks: IDeck = {name: "Unrecognised Cards (Cards without a deck)", deckId: 1, category: null}
-    allCardsArray.forEach(card => {
+    let deckForCardsWithoutDecks: IDeck = {
+        name: "Unrecognised Cards (Cards without a deck)",
+        deckId: 1,
+        category: null,
+    };
+    allCardsArray.forEach((card) => {
         //if deck id is 1 (for the unorganised cards)
         if (card.deckId == 1) {
             //if not initialised initialise it
@@ -163,16 +169,21 @@ function ConvertJsonToAnkiText(json: JSON): string {
             deckForCardsWithoutDecks.cards.push(card);
         }
     });
-    console.log("=====================================================================")
-    console.log("Cards with no deck: " + deckForCardsWithoutDecks.cards?.length)
-    console.log("=====================================================================")
-    
+    console.log(
+        "====================================================================="
+    );
+    console.log(
+        "Cards with no deck: " + deckForCardsWithoutDecks.cards?.length
+    );
+    console.log(
+        "====================================================================="
+    );
 
     //      Create array with names of all categories
     //Array full of the names of all existing categories
     let categoryNamesArray: string[] = [];
     //foreach deck in allDecksArray
-    allDecksArray.forEach(deck => {
+    allDecksArray.forEach((deck) => {
         //if category is null skip
         if (deck.category === null) {
             //skip
@@ -181,7 +192,7 @@ function ConvertJsonToAnkiText(json: JSON): string {
             let exists: boolean = false;
             for (let index = 0; index < categoryNamesArray.length; index++) {
                 const categoryName = categoryNamesArray[index];
-                
+
                 //if it contains it
                 if (categoryName == deck.category) {
                     exists = true;
@@ -198,8 +209,6 @@ function ConvertJsonToAnkiText(json: JSON): string {
     });
     console.log(`Number of categories named: ${categoryNamesArray.length}`);
 
-
-
     //      Convert all the category names in categoryNamesArray into :ICategory[] in allCategoriesArray
     //categories array
     let allCategoriesArray: ICategory[] = [];
@@ -207,7 +216,9 @@ function ConvertJsonToAnkiText(json: JSON): string {
         let category: ICategory = { name: categoryName };
         allCategoriesArray.push(category);
     });
-    console.log(`Category names converted to ICategory: ${allCategoriesArray.length}`);
+    console.log(
+        `Category names converted to ICategory: ${allCategoriesArray.length}`
+    );
 
     //      add all flashcards with categories to respective category
     let stat_numberOfDecksAssignedToCategories: number = 0;
@@ -225,7 +236,9 @@ function ConvertJsonToAnkiText(json: JSON): string {
             }
         });
     });
-    console.log(`Category names decks assgined to categories: ${stat_numberOfDecksAssignedToCategories}`);
+    console.log(
+        `Category names decks assgined to categories: ${stat_numberOfDecksAssignedToCategories}`
+    );
 
     //      Add all decks without categories to decksWithoutCategories
     //decks without categories
@@ -235,7 +248,9 @@ function ConvertJsonToAnkiText(json: JSON): string {
             decksWithoutCategories.push(deck);
         }
     });
-    console.log(`Decks detected without categories: ${decksWithoutCategories.length}`);
+    console.log(
+        `Decks detected without categories: ${decksWithoutCategories.length}`
+    );
 
     //if deckForCardsWithoutDecks isnt empty then add it to decksWithoutCategories
     if (deckForCardsWithoutDecks.cards !== undefined) {
@@ -257,13 +272,17 @@ function ConvertJsonToAnkiText(json: JSON): string {
     decksWithoutCategories.forEach((deck) => {
         rootContainer.decks?.push(deck);
     });
-    console.log(`RootContainer Number of Categories: ${rootContainer.categories?.length}`);
-    console.log(`RootContainer Number of Decks: ${rootContainer.decks?.length}`);
+    console.log(
+        `RootContainer Number of Categories: ${rootContainer.categories?.length}`
+    );
+    console.log(
+        `RootContainer Number of Decks: ${rootContainer.decks?.length}`
+    );
 
+    let ankiTextFile: string =
+        "#separator:tab\n#html:true\n#deck column:1\n#tags column:4\n";
 
-    let ankiTextFile: string = "#separator:tab\n#html:true\n#deck column:1\n#tags column:4\n";
-
-    let stat_numberOfCardsInDecksWithCategoriesAddedToTextFile: number = 0; 
+    let stat_numberOfCardsInDecksWithCategoriesAddedToTextFile: number = 0;
     //      Convert to text file
     //add add all the decks with categories
     rootContainer.categories?.forEach((category) => {
@@ -278,20 +297,20 @@ function ConvertJsonToAnkiText(json: JSON): string {
             });
         });
     });
-    let stat_numberOfCardsInDecksWithOUTCategoriesAddedToTextFile: number = 0; 
+    let stat_numberOfCardsInDecksWithOUTCategoriesAddedToTextFile: number = 0;
     //add add all the decks without categories
     rootContainer.decks?.forEach((deck) => {
         deck.cards?.forEach((card) => {
-            ankiTextFile += ConvertToAnkiText(
-                deck.name,
-                card.front,
-                card.back
-            );
+            ankiTextFile += ConvertToAnkiText(deck.name, card.front, card.back);
             stat_numberOfCardsInDecksWithOUTCategoriesAddedToTextFile++;
         });
     });
-    console.log(`Number of cards in decks WITH CATEGORIES appended to anki text file: ${stat_numberOfCardsInDecksWithCategoriesAddedToTextFile}`);
-    console.log(`Number of cards in decks WITHOUT CATEGORIES appended to anki text file: ${stat_numberOfCardsInDecksWithOUTCategoriesAddedToTextFile}`);
+    console.log(
+        `Number of cards in decks WITH CATEGORIES appended to anki text file: ${stat_numberOfCardsInDecksWithCategoriesAddedToTextFile}`
+    );
+    console.log(
+        `Number of cards in decks WITHOUT CATEGORIES appended to anki text file: ${stat_numberOfCardsInDecksWithOUTCategoriesAddedToTextFile}`
+    );
 
     console.log(i);
 
@@ -316,18 +335,13 @@ function ConvertToAnkiText(
     );
 }
 
-//Replaces all special characters with HTML entities 
-function replaceWithHTMLEntities(str) {
-    let result = '';
-    for (let i = 0; i < str.length; i++) {
-        let charCode = str.charCodeAt(i);
-        if ((charCode >= 65 && charCode <= 90) || // A-Z
-            (charCode >= 97 && charCode <= 122) || // a-z
-            charCode == 32) { // space
-            result += str[i];
-        } else {
-            result += '&#' + charCode + ';';
-        }
-    }
-    return result;
+//Replaces all \" with "" and all \n with <br>
+function replaceWithHTMLEntities(inputString) {
+    // Replace all occurrences of \" with ""
+    const doubleQuotesReplaced = inputString.replace(/\\"/g, '""');
+
+    // Replace all occurrences of \n with <br>
+    const newlinesReplaced = doubleQuotesReplaced.replace(/\n/g, '<br>');
+
+    return newlinesReplaced;
 }

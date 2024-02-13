@@ -1,0 +1,7 @@
+#====0.1.0====
+Initial Release
+#====0.1.1====
+Replaced element replacer, 
+    instead of replacing all special characters with html entities,
+    we now only replace `\"` with `""` and `\n` with `<br>`.
+    This makes editing notes MUCH easier.
